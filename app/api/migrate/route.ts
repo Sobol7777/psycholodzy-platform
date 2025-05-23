@@ -21,9 +21,57 @@ export async function POST() {
     
     console.log('📋 Istniejące tabele:', result)
     
+    // Jeśli tabele nie istnieją, utwórz je
+    if (Array.isArray(result) && result.length === 0) {
+      console.log('🔨 Tworzenie tabel...')
+      
+      // Utwórz tabelę specialists
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS specialists (
+          id SERIAL PRIMARY KEY,
+          cal_user_id VARCHAR(255) UNIQUE,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          specialization VARCHAR(255),
+          photo_url VARCHAR(255),
+          bio TEXT,
+          price_per_session INTEGER,
+          city VARCHAR(100),
+          address TEXT,
+          phone VARCHAR(20),
+          education TEXT,
+          certifications TEXT,
+          specializations TEXT,
+          therapy_methods TEXT,
+          experience_years INTEGER,
+          offers_online BOOLEAN DEFAULT false,
+          offers_in_person BOOLEAN DEFAULT false,
+          is_active BOOLEAN DEFAULT true,
+          is_verified BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        )
+      `
+      
+      // Utwórz tabelę contact_requests
+      await prisma.$executeRaw`
+        CREATE TABLE IF NOT EXISTS contact_requests (
+          id SERIAL PRIMARY KEY,
+          specialist_id INTEGER REFERENCES specialists(id),
+          name VARCHAR(255),
+          email VARCHAR(255),
+          phone VARCHAR(20),
+          message TEXT,
+          created_at TIMESTAMP DEFAULT NOW()
+        )
+      `
+      
+      console.log('✅ Tabele utworzone')
+    }
+    
     return NextResponse.json({ 
       success: true, 
-      message: 'Połączenie z bazą danych działa',
+      message: 'Migracja zakończona pomyślnie',
       tables: result
     })
   } catch (error) {

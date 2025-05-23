@@ -3,9 +3,20 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  // Usuń istniejące dane
-  await prisma.contactRequest.deleteMany()
-  await prisma.specialist.deleteMany()
+  // Usuń istniejące dane (jeśli tabele istnieją)
+  try {
+    await prisma.contactRequest.deleteMany()
+    console.log('Usunięto istniejące zapytania kontaktowe')
+  } catch (error) {
+    console.log('Tabela contact_requests nie istnieje lub jest pusta')
+  }
+  
+  try {
+    await prisma.specialist.deleteMany()
+    console.log('Usunięto istniejących specjalistów')
+  } catch (error) {
+    console.log('Tabela specialists nie istnieje lub jest pusta')
+  }
 
   // Dodaj przykładowych specjalistów
   const specialist1 = await prisma.specialist.create({
