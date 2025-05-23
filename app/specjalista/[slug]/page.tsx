@@ -3,9 +3,106 @@ import Layout from '../../components/layout/Layout';
 import Image from 'next/image';
 import { MapPin, Clock, Monitor, Award, Phone, Mail, Star } from 'lucide-react';
 import { notFound } from 'next/navigation';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Przykładowe dane specjalistów
+const sampleSpecialists = [
+  {
+    id: 1,
+    name: "Dr Anna Kowalska",
+    specialization: "Psycholog kliniczny",
+    city: "Warszawa",
+    experience: "10 lat doświadczenia w terapii poznawczo-behawioralnej",
+    description: "Specjalizuję się w terapii zaburzeń lękowych, depresji oraz problemów związanych ze stresem. Prowadzę terapię indywidualną dla dorosłych.",
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
+    calComLink: "https://cal.com/anna-kowalska",
+    phone: "+48 123 456 789",
+    email: "anna.kowalska@example.com",
+    photoUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
+    isVerified: true,
+    pricePerSession: 200,
+    address: "ul. Marszałkowska 1, Warszawa",
+    offersInPerson: true,
+    offersOnline: true,
+    calUserId: "anna-kowalska",
+    bio: "Jestem psychologiem klinicznym z 10-letnim doświadczeniem w pracy z osobami dorosłymi. Specjalizuję się w terapii poznawczo-behawioralnej, która jest skuteczną metodą leczenia zaburzeń lękowych, depresji oraz problemów związanych ze stresem.",
+    experienceYears: 10,
+    education: "Magister psychologii klinicznej, Uniwersytet Warszawski\nSpecjalizacja w terapii poznawczo-behawioralnej\nCertyfikat terapeuty CBT",
+    specializations: '["Zaburzenia lękowe", "Depresja", "Stres", "Terapia poznawczo-behawioralna"]',
+    isActive: true
+  },
+  {
+    id: 2,
+    name: "Mgr Piotr Nowak",
+    specialization: "Psychoterapeuta",
+    city: "Kraków",
+    experience: "8 lat doświadczenia w terapii par i rodzin",
+    description: "Pomagam parom i rodzinom w rozwiązywaniu konfliktów oraz budowaniu lepszej komunikacji. Prowadzę również terapię indywidualną.",
+    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
+    calComLink: "https://cal.com/piotr-nowak",
+    phone: "+48 987 654 321",
+    email: "piotr.nowak@example.com",
+    photoUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
+    isVerified: true,
+    pricePerSession: 180,
+    address: "ul. Floriańska 10, Kraków",
+    offersInPerson: true,
+    offersOnline: true,
+    calUserId: "piotr-nowak",
+    bio: "Jestem psychoterapeutą z 8-letnim doświadczeniem w pracy z parami i rodzinami. Pomagam w rozwiązywaniu konfliktów, budowaniu lepszej komunikacji oraz wzmacnianiu więzi.",
+    experienceYears: 8,
+    education: "Magister psychologii, Uniwersytet Jagielloński\nSzkolenie w terapii systemowej\nCertyfikat terapeuty par i rodzin",
+    specializations: '["Terapia par", "Terapia rodzin", "Komunikacja", "Konflikty"]',
+    isActive: true
+  },
+  {
+    id: 3,
+    name: "Dr Maria Wiśniewska",
+    specialization: "Psychiatra",
+    city: "Gdańsk",
+    experience: "15 lat doświadczenia w psychiatrii",
+    description: "Specjalizuję się w diagnostyce i leczeniu zaburzeń psychicznych. Prowadzę konsultacje psychiatryczne oraz farmakoterapię.",
+    image: "https://images.unsplash.com/photo-1594824388853-d0c2d4e5b1b5?w=400&h=400&fit=crop&crop=face",
+    calComLink: "https://cal.com/maria-wisniewska",
+    phone: "+48 555 123 456",
+    email: "maria.wisniewska@example.com",
+    photoUrl: "https://images.unsplash.com/photo-1594824388853-d0c2d4e5b1b5?w=400&h=400&fit=crop&crop=face",
+    isVerified: true,
+    pricePerSession: 250,
+    address: "ul. Długa 5, Gdańsk",
+    offersInPerson: true,
+    offersOnline: false,
+    calUserId: "maria-wisniewska",
+    bio: "Jestem psychiatrą z 15-letnim doświadczeniem w diagnostyce i leczeniu zaburzeń psychicznych. Specjalizuję się w farmakoterapii oraz kompleksowym podejściu do zdrowia psychicznego.",
+    experienceYears: 15,
+    education: "Doktor nauk medycznych, Gdański Uniwersytet Medyczny\nSpecjalizacja w psychiatrii\nSzkolenia w psychofarmakologii",
+    specializations: '["Farmakoterapia", "Diagnostyka psychiatryczna", "Zaburzenia nastroju", "Schizofrenia"]',
+    isActive: true
+  },
+  {
+    id: 4,
+    name: "Mgr Tomasz Zieliński",
+    specialization: "Psycholog dziecięcy",
+    city: "Wrocław",
+    experience: "6 lat doświadczenia w pracy z dziećmi",
+    description: "Pracuję z dziećmi i młodzieżą, pomagając w radzeniu sobie z problemami emocjonalnymi, trudnościami w nauce oraz problemami behawioralnymi.",
+    image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
+    calComLink: "https://cal.com/tomasz-zielinski",
+    phone: "+48 777 888 999",
+    email: "tomasz.zielinski@example.com",
+    photoUrl: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
+    isVerified: true,
+    pricePerSession: 150,
+    address: "ul. Świdnicka 20, Wrocław",
+    offersInPerson: true,
+    offersOnline: true,
+    calUserId: "tomasz-zielinski",
+    bio: "Jestem psychologiem dziecięcym z 6-letnim doświadczeniem w pracy z dziećmi i młodzieżą. Pomagam w radzeniu sobie z problemami emocjonalnymi, trudnościami w nauce oraz problemami behawioralnymi.",
+    experienceYears: 6,
+    education: "Magister psychologii dziecięcej, Uniwersytet Wrocławski\nSzkolenie w terapii zabawowej\nCertyfikat psychologa dziecięcego",
+    specializations: '["Psychologia dziecięca", "Terapia zabawowa", "Trudności w nauce", "Problemy behawioralne"]',
+    isActive: true
+  }
+];
 
 // Funkcja do konwersji nazwy na slug
 function nameToSlug(name: string): string {
@@ -27,16 +124,12 @@ function nameToSlug(name: string): string {
 }
 
 // Funkcja do znalezienia specjalisty po slug
-async function getSpecialistBySlug(slug: string) {
-  const specialists = await prisma.specialist.findMany({
-    where: { isActive: true }
-  });
-  
-  return specialists.find(specialist => nameToSlug(specialist.name) === slug);
+function getSpecialistBySlug(slug: string) {
+  return sampleSpecialists.find(specialist => nameToSlug(specialist.name) === slug);
 }
 
 export default async function SpecialistPage({ params }: { params: { slug: string } }) {
-  const specialist = await getSpecialistBySlug(params.slug);
+  const specialist = getSpecialistBySlug(params.slug);
   
   if (!specialist) {
     notFound();
