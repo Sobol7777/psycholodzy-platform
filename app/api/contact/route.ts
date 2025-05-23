@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../lib/prisma';
 import { z } from 'zod';
 
+// Force dynamic rendering - nie prerenderuj podczas build
+export const dynamic = 'force-dynamic';
+
 // Schemat walidacji dla zapytania kontaktowego
 const contactRequestSchema = z.object({
   specialistId: z.number().int().positive(),
@@ -13,14 +16,6 @@ const contactRequestSchema = z.object({
 
 // POST /api/contact - wyślij zapytanie kontaktowe
 export async function POST(request: NextRequest) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json(
-      { error: 'Service temporarily unavailable' },
-      { status: 503 }
-    );
-  }
-
   try {
     const body = await request.json();
     

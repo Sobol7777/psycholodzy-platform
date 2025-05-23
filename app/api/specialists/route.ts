@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../lib/prisma';
 
+// Force dynamic rendering - nie prerenderuj podczas build
+export const dynamic = 'force-dynamic';
+
 // GET /api/specialists - pobierz wszystkich specjalistów
 export async function GET(request: NextRequest) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json([]);
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     
@@ -54,7 +52,7 @@ export async function GET(request: NextRequest) {
     if (offersInPerson === 'true') {
       where.offersInPerson = true;
     }
-    
+
     const specialists = await prisma.specialist.findMany({
       where,
       orderBy: {
@@ -74,14 +72,6 @@ export async function GET(request: NextRequest) {
 
 // POST /api/specialists - dodaj nowego specjalistę (tylko dla admina)
 export async function POST(request: NextRequest) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json(
-      { error: 'Service temporarily unavailable' },
-      { status: 503 }
-    );
-  }
-
   try {
     // W prawdziwej aplikacji dodalibyśmy sprawdzanie autoryzacji dla admina
     const body = await request.json();

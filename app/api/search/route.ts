@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../lib/prisma';
 
+// Force dynamic rendering - nie prerenderuj podczas build
+export const dynamic = 'force-dynamic';
+
 // GET /api/search - wyszukiwanie specjalistów
 export async function GET(request: NextRequest) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json([]);
-  }
-
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';

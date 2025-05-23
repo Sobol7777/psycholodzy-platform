@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 
+// Force dynamic rendering - nie prerenderuj podczas build
+export const dynamic = 'force-dynamic';
+
 // GET /api/specialists/[id] - pobierz specjalistę po ID
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json({ id: 1, name: 'Mock Specialist' });
-  }
-
   try {
     const id = parseInt(params.id);
     
@@ -47,14 +45,6 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json(
-      { error: 'Service temporarily unavailable' },
-      { status: 503 }
-    );
-  }
-
   try {
     // W prawdziwej aplikacji dodalibyśmy sprawdzanie autoryzacji dla admina
     const id = parseInt(params.id);
@@ -88,14 +78,6 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Sprawdź czy to build time - jeśli tak, zwróć mock response
-  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
-    return NextResponse.json(
-      { error: 'Service temporarily unavailable' },
-      { status: 503 }
-    );
-  }
-
   try {
     // W prawdziwej aplikacji dodalibyśmy sprawdzanie autoryzacji dla admina
     const id = parseInt(params.id);
