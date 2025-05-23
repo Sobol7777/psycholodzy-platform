@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || '';
     
     // Wyszukiwanie po nazwie, mieście lub specjalizacji
+    // Używamy LIKE zamiast contains dla kompatybilności z SQLite i PostgreSQL
     const specialists = await prisma.specialist.findMany({
       where: {
         isActive: true,
