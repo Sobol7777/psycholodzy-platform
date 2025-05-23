@@ -3,6 +3,11 @@ import { prisma } from '../../lib/prisma';
 
 // GET /api/specialists - pobierz wszystkich specjalistów
 export async function GET(request: NextRequest) {
+  // Sprawdź czy to build time - jeśli tak, zwróć mock response
+  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    return NextResponse.json([]);
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     
@@ -69,6 +74,14 @@ export async function GET(request: NextRequest) {
 
 // POST /api/specialists - dodaj nowego specjalistę (tylko dla admina)
 export async function POST(request: NextRequest) {
+  // Sprawdź czy to build time - jeśli tak, zwróć mock response
+  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    return NextResponse.json(
+      { error: 'Service temporarily unavailable' },
+      { status: 503 }
+    );
+  }
+
   try {
     // W prawdziwej aplikacji dodalibyśmy sprawdzanie autoryzacji dla admina
     const body = await request.json();

@@ -3,6 +3,11 @@ import { prisma } from '../../lib/prisma';
 
 // GET /api/search - wyszukiwanie specjalistów
 export async function GET(request: NextRequest) {
+  // Sprawdź czy to build time - jeśli tak, zwróć mock response
+  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    return NextResponse.json([]);
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
