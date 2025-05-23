@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma';
 import { z } from 'zod';
 
 // Force dynamic rendering - nie prerenderuj podczas build
 export const dynamic = 'force-dynamic';
+
+// Przykładowe dane specjalistów dla walidacji
+const sampleSpecialists = [
+  { id: 1, name: "Dr Anna Kowalska" },
+  { id: 2, name: "Mgr Piotr Nowak" },
+  { id: 3, name: "Dr Maria Wiśniewska" },
+  { id: 4, name: "Mgr Tomasz Zieliński" }
+];
 
 // Schemat walidacji dla zapytania kontaktowego
 const contactRequestSchema = z.object({
@@ -32,9 +39,7 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data;
     
     // Sprawdź czy specjalista istnieje
-    const specialist = await prisma.specialist.findUnique({
-      where: { id: data.specialistId },
-    });
+    const specialist = sampleSpecialists.find(s => s.id === data.specialistId);
     
     if (!specialist) {
       return NextResponse.json(
@@ -43,22 +48,27 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Zapisz zapytanie kontaktowe
-    const contactRequest = await prisma.contactRequest.create({
-      data,
-    });
+    // Symulujemy zapisanie zapytania kontaktowego
+    const contactRequest = {
+      id: Math.floor(Math.random() * 10000),
+      ...data,
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    
+    console.log('Nowe zapytanie kontaktowe:', contactRequest);
     
     // W prawdziwej aplikacji tutaj wysłalibyśmy email do specjalisty
     // np. przez Nodemailer, SendGrid lub podobny serwis
     
     return NextResponse.json(
-      { message: 'Contact request sent successfully', id: contactRequest.id },
+      { message: 'Zapytanie kontaktowe zostało wysłane pomyślnie', id: contactRequest.id },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error sending contact request:', error);
+    console.error('Błąd podczas wysyłania zapytania kontaktowego:', error);
     return NextResponse.json(
-      { error: 'Failed to send contact request' },
+      { error: 'Nie udało się wysłać zapytania kontaktowego' },
       { status: 500 }
     );
   }
