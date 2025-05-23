@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Specialist {
+  id              Int              @id @default(autoincrement())
+  calUserId       String?          @unique @map("cal_user_id")
+  email           String           @unique
+  name            String
+  specialization  String?
+  photoUrl        String?          @map("photo_url")
+  bio             String?
+  pricePerSession Int?             @map("price_per_session")
+  city            String?
+  address         String?
+  phone           String?
+  education       String?
+  certifications  String
+  specializations String
+  therapyMethods  String           @map("therapy_methods")
+  experienceYears Int?             @map("experience_years")
+  offersOnline    Boolean          @default(false) @map("offers_online")
+  offersInPerson  Boolean          @default(false) @map("offers_in_person")
+  isActive        Boolean          @default(true) @map("is_active")
+  isVerified      Boolean          @default(false) @map("is_verified")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  contactRequests ContactRequest[]
+
+  @@map("specialists")
+}
+
+model ContactRequest {
+  id           Int        @id @default(autoincrement())
+  specialistId Int        @map("specialist_id")
+  name         String
+  email        String
+  phone        String?
+  message      String
+  createdAt    DateTime   @default(now()) @map("created_at")
+  specialist   Specialist @relation(fields: [specialistId], references: [id])
+
+  @@map("contact_requests")
+}
