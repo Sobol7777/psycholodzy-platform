@@ -1,5 +1,0 @@
-{
-  "/api/search/route": "app/api/search/route.js",
-  "/specjalista/[slug]/page": "app/specjalista/[slug]/page.js",
-  "/specjalisci/page": "app/specjalisci/page.js"
-}
