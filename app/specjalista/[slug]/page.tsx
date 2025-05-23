@@ -128,7 +128,7 @@ function getSpecialistBySlug(slug: string) {
   return sampleSpecialists.find(specialist => nameToSlug(specialist.name) === slug);
 }
 
-export default async function SpecialistPage({ params }: { params: { slug: string } }) {
+export default function SpecialistPage({ params }: { params: { slug: string } }) {
   const specialist = getSpecialistBySlug(params.slug);
   
   if (!specialist) {
