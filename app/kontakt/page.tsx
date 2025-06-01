@@ -200,7 +200,7 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="form-input w-full"
+                    className="appearance-none bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent text-slate-800 transition-all hover:border-slate-400"
                   >
                     <option value="">Wybierz temat</option>
                     <option value="general">Ogólne pytanie</option>

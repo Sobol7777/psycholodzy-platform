@@ -300,7 +300,7 @@ export default function SpecialistsPage() {
                     id="sort"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-white border border-slate-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent text-slate-800"
+                    className="appearance-none bg-slate-50 border border-slate-300 rounded-lg pl-4 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent text-slate-800 transition-all hover:border-slate-400"
                   >
                     <option value="popularity">Popularność</option>
                     <option value="name_asc">Nazwa A-Z</option>
