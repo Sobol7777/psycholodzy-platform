@@ -1,369 +1,357 @@
 import React from 'react';
 import Layout from '../../components/layout/Layout';
 import Image from 'next/image';
-import { MapPin, Clock, Monitor, Award, Phone, Mail, Star } from 'lucide-react';
+import { MapPin, Clock, Monitor, Award, Phone, Mail } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { PrismaClient } from '@prisma/client';
+import ContactForm from '../../components/specialists/ContactForm';
+import StructuredData from '../../components/specialists/StructuredData';
+import { Metadata } from 'next';
 
-// Przykładowe dane specjalistów
-const sampleSpecialists = [
-  {
-    id: 1,
-    name: "Dr Anna Kowalska",
-    specialization: "Psycholog kliniczny",
-    city: "Warszawa",
-    experience: "10 lat doświadczenia w terapii poznawczo-behawioralnej",
-    description: "Specjalizuję się w terapii zaburzeń lękowych, depresji oraz problemów związanych ze stresem. Prowadzę terapię indywidualną dla dorosłych.",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
-    calComLink: "https://cal.com/anna-kowalska",
-    phone: "+48 123 456 789",
-    email: "anna.kowalska@example.com",
-    photoUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face",
-    isVerified: true,
-    pricePerSession: 200,
-    address: "ul. Marszałkowska 1, Warszawa",
-    offersInPerson: true,
-    offersOnline: true,
-    calUserId: "anna-kowalska",
-    bio: "Jestem psychologiem klinicznym z 10-letnim doświadczeniem w pracy z osobami dorosłymi. Specjalizuję się w terapii poznawczo-behawioralnej, która jest skuteczną metodą leczenia zaburzeń lękowych, depresji oraz problemów związanych ze stresem.",
-    experienceYears: 10,
-    education: "Magister psychologii klinicznej, Uniwersytet Warszawski\nSpecjalizacja w terapii poznawczo-behawioralnej\nCertyfikat terapeuty CBT",
-    specializations: '["Zaburzenia lękowe", "Depresja", "Stres", "Terapia poznawczo-behawioralna"]',
-    isActive: true
-  },
-  {
-    id: 2,
-    name: "Mgr Piotr Nowak",
-    specialization: "Psychoterapeuta",
-    city: "Kraków",
-    experience: "8 lat doświadczenia w terapii par i rodzin",
-    description: "Pomagam parom i rodzinom w rozwiązywaniu konfliktów oraz budowaniu lepszej komunikacji. Prowadzę również terapię indywidualną.",
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
-    calComLink: "https://cal.com/piotr-nowak",
-    phone: "+48 987 654 321",
-    email: "piotr.nowak@example.com",
-    photoUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=face",
-    isVerified: true,
-    pricePerSession: 180,
-    address: "ul. Floriańska 10, Kraków",
-    offersInPerson: true,
-    offersOnline: true,
-    calUserId: "piotr-nowak",
-    bio: "Jestem psychoterapeutą z 8-letnim doświadczeniem w pracy z parami i rodzinami. Pomagam w rozwiązywaniu konfliktów, budowaniu lepszej komunikacji oraz wzmacnianiu więzi.",
-    experienceYears: 8,
-    education: "Magister psychologii, Uniwersytet Jagielloński\nSzkolenie w terapii systemowej\nCertyfikat terapeuty par i rodzin",
-    specializations: '["Terapia par", "Terapia rodzin", "Komunikacja", "Konflikty"]',
-    isActive: true
-  },
-  {
-    id: 3,
-    name: "Dr Maria Wiśniewska",
-    specialization: "Psychiatra",
-    city: "Gdańsk",
-    experience: "15 lat doświadczenia w psychiatrii",
-    description: "Specjalizuję się w diagnostyce i leczeniu zaburzeń psychicznych. Prowadzę konsultacje psychiatryczne oraz farmakoterapię.",
-    image: "https://images.unsplash.com/photo-1594824388853-d0c2d4e5b1b5?w=400&h=400&fit=crop&crop=face",
-    calComLink: "https://cal.com/maria-wisniewska",
-    phone: "+48 555 123 456",
-    email: "maria.wisniewska@example.com",
-    photoUrl: "https://images.unsplash.com/photo-1594824388853-d0c2d4e5b1b5?w=400&h=400&fit=crop&crop=face",
-    isVerified: true,
-    pricePerSession: 250,
-    address: "ul. Długa 5, Gdańsk",
-    offersInPerson: true,
-    offersOnline: false,
-    calUserId: "maria-wisniewska",
-    bio: "Jestem psychiatrą z 15-letnim doświadczeniem w diagnostyce i leczeniu zaburzeń psychicznych. Specjalizuję się w farmakoterapii oraz kompleksowym podejściu do zdrowia psychicznego.",
-    experienceYears: 15,
-    education: "Doktor nauk medycznych, Gdański Uniwersytet Medyczny\nSpecjalizacja w psychiatrii\nSzkolenia w psychofarmakologii",
-    specializations: '["Farmakoterapia", "Diagnostyka psychiatryczna", "Zaburzenia nastroju", "Schizofrenia"]',
-    isActive: true
-  },
-  {
-    id: 4,
-    name: "Mgr Tomasz Zieliński",
-    specialization: "Psycholog dziecięcy",
-    city: "Wrocław",
-    experience: "6 lat doświadczenia w pracy z dziećmi",
-    description: "Pracuję z dziećmi i młodzieżą, pomagając w radzeniu sobie z problemami emocjonalnymi, trudnościami w nauce oraz problemami behawioralnymi.",
-    image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
-    calComLink: "https://cal.com/tomasz-zielinski",
-    phone: "+48 777 888 999",
-    email: "tomasz.zielinski@example.com",
-    photoUrl: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop&crop=face",
-    isVerified: true,
-    pricePerSession: 150,
-    address: "ul. Świdnicka 20, Wrocław",
-    offersInPerson: true,
-    offersOnline: true,
-    calUserId: "tomasz-zielinski",
-    bio: "Jestem psychologiem dziecięcym z 6-letnim doświadczeniem w pracy z dziećmi i młodzieżą. Pomagam w radzeniu sobie z problemami emocjonalnymi, trudnościami w nauce oraz problemami behawioralnymi.",
-    experienceYears: 6,
-    education: "Magister psychologii dziecięcej, Uniwersytet Wrocławski\nSzkolenie w terapii zabawowej\nCertyfikat psychologa dziecięcego",
-    specializations: '["Psychologia dziecięca", "Terapia zabawowa", "Trudności w nauce", "Problemy behawioralne"]',
-    isActive: true
+const prisma = new PrismaClient();
+
+// Typ dla specjalisty z bazy danych
+interface Specialist {
+  id: number;
+  name: string;
+  specialization: string | null;
+  city: string | null;
+  bio: string | null;
+  pricePerSession: number | null;
+  phone: string | null;
+  email: string;
+  address: string | null;
+  photoUrl: string | null;
+  education: string | null;
+  experienceYears: number | null;
+  specializations: string;
+  therapyMethods: string;
+  offersOnline: boolean;
+  offersInPerson: boolean;
+  isVerified: boolean;
+  calUserId: string | null;
+}
+
+async function getSpecialistBySlug(slug: string): Promise<Specialist | null> {
+  try {
+    // Konwertujemy slug na ID (zakładamy, że slug to ID specjalisty)
+    const id = parseInt(slug);
+    if (isNaN(id)) {
+      return null;
+    }
+
+    const specialist = await prisma.specialist.findUnique({
+      where: {
+        id: id,
+        isActive: true
+      },
+      select: {
+        id: true,
+        name: true,
+        specialization: true,
+        city: true,
+        bio: true,
+        pricePerSession: true,
+        phone: true,
+        email: true,
+        address: true,
+        photoUrl: true,
+        education: true,
+        experienceYears: true,
+        specializations: true,
+        therapyMethods: true,
+        offersOnline: true,
+        offersInPerson: true,
+        isVerified: true,
+        calUserId: true
+      }
+    });
+
+    if (!specialist) {
+      return null;
+    }
+
+    return {
+      ...specialist,
+      specializations: specialist.specializations || '',
+      therapyMethods: specialist.therapyMethods || ''
+    };
+  } catch (error) {
+    console.error('Błąd podczas pobierania specjalisty:', error);
+    return null;
   }
-];
-
-// Funkcja do konwersji nazwy na slug
-function nameToSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/ą/g, 'a')
-    .replace(/ć/g, 'c')
-    .replace(/ę/g, 'e')
-    .replace(/ł/g, 'l')
-    .replace(/ń/g, 'n')
-    .replace(/ó/g, 'o')
-    .replace(/ś/g, 's')
-    .replace(/ź/g, 'z')
-    .replace(/ż/g, 'z')
-    .replace(/\./g, '') // usuwa kropki
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-') // usuwa wielokrotne myślniki
-    .trim();
 }
 
-// Funkcja do znalezienia specjalisty po slug
-function getSpecialistBySlug(slug: string) {
-  return sampleSpecialists.find(specialist => nameToSlug(specialist.name) === slug);
-}
-
-export default function SpecialistPage({ params }: { params: { slug: string } }) {
-  const specialist = getSpecialistBySlug(params.slug);
+// SEO Meta Tags
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const specialist = await getSpecialistBySlug(params.slug);
   
+  if (!specialist) {
+    return {
+      title: 'Specjalista nie znaleziony - OpenMind',
+      description: 'Specjalista nie został znaleziony w naszej bazie danych.'
+    };
+  }
+
+  const specializations = specialist.specializations 
+    ? JSON.parse(specialist.specializations).join(', ')
+    : '';
+
+  return {
+    title: `${specialist.name} - ${specialist.specialization} | OpenMind`,
+    description: `${specialist.name} - ${specialist.specialization} w ${specialist.city}. Specjalizacje: ${specializations}. Umów wizytę online lub stacjonarnie.`,
+    keywords: [
+      specialist.name,
+      specialist.specialization || '',
+      specialist.city || '',
+      'psycholog',
+      'psychiatra',
+      'psychoterapeuta',
+      'terapia',
+      'wizyty online',
+      ...JSON.parse(specialist.specializations || '[]')
+    ].filter(Boolean),
+    openGraph: {
+      title: `${specialist.name} - ${specialist.specialization}`,
+      description: `Umów wizytę u ${specialist.name} - ${specialist.specialization} w ${specialist.city}`,
+      type: 'profile',
+      images: specialist.photoUrl ? [specialist.photoUrl] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${specialist.name} - ${specialist.specialization}`,
+      description: `Umów wizytę u ${specialist.name} - ${specialist.specialization} w ${specialist.city}`,
+    }
+  };
+}
+
+export default async function SpecialistPage({ params }: { params: { slug: string } }) {
+  const specialist = await getSpecialistBySlug(params.slug);
+
   if (!specialist) {
     notFound();
   }
 
-  // Parsowanie specjalizacji z JSON
-  const specializations = specialist.specializations ? JSON.parse(specialist.specializations) : [];
-  
+  const specializations = specialist.specializations 
+    ? JSON.parse(specialist.specializations).filter((s: string) => s.trim())
+    : [];
+  const therapyMethods = specialist.therapyMethods 
+    ? JSON.parse(specialist.therapyMethods).filter((m: string) => m.trim())
+    : [];
+
   return (
     <Layout>
-      <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Basic Info */}
-            <div className="lg:col-span-1">
-              <div className="card sticky top-24">
-                {/* Photo */}
-                <div className="relative w-40 h-40 rounded-lg border-2 border-slate-200 overflow-hidden mx-auto mb-6">
+      <StructuredData specialist={specialist} />
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Header z podstawowymi informacjami */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Zdjęcie */}
+              <div className="flex-shrink-0">
+                <div className="w-48 h-48 rounded-lg border-2 border-slate-200 overflow-hidden bg-slate-100">
                   {specialist.photoUrl ? (
                     <Image
                       src={specialist.photoUrl}
                       alt={specialist.name}
-                      fill
-                      sizes="(max-width: 768px) 100px, 200px"
-                      className="object-cover"
+                      width={192}
+                      height={192}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-4xl font-semibold">
-                      {specialist.name.charAt(0)}
-                    </div>
-                  )}
-                  {specialist.isVerified && (
-                    <div className="absolute -bottom-1 -right-1 bg-teal-700 text-white p-1 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">
+                      <Award size={48} />
                     </div>
                   )}
                 </div>
-                
-                <h1 className="text-2xl font-semibold text-slate-800 text-center mb-1">
-                  {specialist.name}
-                </h1>
-                <p className="text-center text-slate-600 mb-4">
-                  {specialist.specialization}
-                </p>
-                
-                {/* Price */}
-                <div className="text-center mb-6">
-                  <div className="text-2xl font-semibold text-slate-900">
-                    {specialist.pricePerSession} zł
+              </div>
+
+              {/* Informacje podstawowe */}
+              <div className="flex-1">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-2">
+                      {specialist.name}
+                    </h1>
+                    <p className="text-xl text-slate-600 font-mono mb-2">
+                      {specialist.specialization}
+                    </p>
+                    {specialist.isVerified && (
+                      <div className="flex items-center gap-2 text-teal-700 mb-4">
+                        <Award size={20} />
+                        <span className="text-sm font-medium">Zweryfikowany specjalista</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-sm text-slate-500">za sesję</div>
+                  <div className="text-right">
+                    <div className="text-3xl font-semibold text-slate-900 mb-1">
+                      {specialist.pricePerSession ? `${specialist.pricePerSession} zł` : 'Cena do uzgodnienia'}
+                    </div>
+                    <div className="text-sm text-slate-500">za sesję</div>
+                  </div>
                 </div>
-                
-                {/* Contact Info */}
-                <div className="space-y-3 mb-6">
-                  {specialist.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone size={18} className="text-slate-500" />
-                      <span>{specialist.phone}</span>
-                    </div>
-                  )}
-                  {specialist.email && (
-                    <div className="flex items-center gap-3">
-                      <Mail size={18} className="text-slate-500" />
-                      <span>{specialist.email}</span>
-                    </div>
-                  )}
-                  {specialist.address && (
-                    <div className="flex items-center gap-3">
-                      <MapPin size={18} className="text-slate-500" />
-                      <span>{specialist.address}</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Consultation Types */}
-                <div className="space-y-2 mb-6">
-                  <h3 className="text-lg font-medium text-slate-800 mb-2">Formy konsultacji</h3>
-                  {specialist.offersInPerson && (
-                    <div className="flex items-center gap-2">
-                      <Clock size={18} className="text-teal-700" />
-                      <span>Wizyty stacjonarne</span>
+
+                {/* Lokalizacja i typy wizyt */}
+                <div className="flex flex-wrap gap-4 mb-6">
+                  {specialist.city && (
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <MapPin size={16} />
+                      <span>{specialist.city}</span>
                     </div>
                   )}
                   {specialist.offersOnline && (
-                    <div className="flex items-center gap-2">
-                      <Monitor size={18} className="text-teal-700" />
+                    <div className="flex items-center gap-2 text-teal-700">
+                      <Monitor size={16} />
                       <span>Wizyty online</span>
                     </div>
                   )}
+                  {specialist.offersInPerson && (
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <Clock size={16} />
+                      <span>Wizyty stacjonarne</span>
+                    </div>
+                  )}
                 </div>
-                
-                {/* CTA */}
-                {specialist.calUserId ? (
-                  <a
-                    href={`https://cal.com/${specialist.calUserId}/consultation`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-accent w-full text-center block"
-                  >
-                    Umów wizytę
-                  </a>
-                ) : (
-                  <button className="btn-accent w-full text-center block opacity-50 cursor-not-allowed">
-                    Rezerwacja niedostępna
-                  </button>
-                )}
-              </div>
-            </div>
-            
-            {/* Right Column - Detailed Info */}
-            <div className="lg:col-span-2">
-              {/* Bio */}
-              <div className="card mb-6">
-                <h2 className="text-xl font-medium text-slate-800 mb-4">O mnie</h2>
-                <p className="text-slate-600 whitespace-pre-line">{specialist.bio || 'Informacje o specjaliście będą dostępne wkrótce.'}</p>
-              </div>
-              
-              {/* Experience & Education */}
-              <div className="card mb-6">
-                <h2 className="text-xl font-medium text-slate-800 mb-4">Doświadczenie i edukacja</h2>
-                <div className="flex items-center gap-2 mb-4">
-                  <Award size={20} className="text-teal-700" />
-                  <span className="text-slate-700 font-medium">{specialist.experienceYears || 0} lat doświadczenia</span>
+
+                {/* Kontakt */}
+                <div className="flex flex-wrap gap-4 mb-6">
+                  {specialist.phone && (
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Phone size={16} />
+                      <span>{specialist.phone}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Mail size={16} />
+                    <span>{specialist.email}</span>
+                  </div>
                 </div>
-                <div className="text-slate-600 whitespace-pre-line">{specialist.education || 'Informacje o edukacji będą dostępne wkrótce.'}</div>
-              </div>
-              
-              {/* Specializations */}
-              <div className="card mb-6">
-                <h2 className="text-xl font-medium text-slate-800 mb-4">Obszary pomocy</h2>
-                <div className="flex flex-wrap gap-2">
-                  {specializations.map((spec: string, index: number) => (
-                    <span
-                      key={index}
-                      className="bg-teal-50 text-teal-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      {spec}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Calendar */}
-              <div className="card mb-6">
-                <h2 className="text-xl font-medium text-slate-800 mb-4">Dostępne terminy</h2>
-                <p className="text-slate-600 mb-4">
-                  Wybierz dogodny termin, aby zarezerwować wizytę u specjalisty.
-                </p>
-                <div className="bg-slate-100 p-6 rounded-lg text-center">
-                  <p className="text-slate-700 mb-4">
-                    W tym miejscu zostanie wyświetlony kalendarz z Cal.com po integracji.
-                  </p>
-                  {specialist.calUserId ? (
+
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap gap-4">
+                  {specialist.calUserId && (
                     <a
                       href={`https://cal.com/${specialist.calUserId}/consultation`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-accent inline-block"
+                      className="bg-slate-800 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-md tracking-wide transition-colors"
                     >
-                      Zobacz dostępne terminy
+                      Umów wizytę
                     </a>
-                  ) : (
-                    <button className="btn-accent inline-block opacity-50 cursor-not-allowed">
-                      Rezerwacja niedostępna
-                    </button>
                   )}
                 </div>
               </div>
-              
-              {/* Contact Form */}
-              <div className="card">
-                <h2 className="text-xl font-medium text-slate-800 mb-4">Formularz kontaktowy</h2>
-                <p className="text-slate-600 mb-4">
-                  Masz pytania? Wypełnij formularz, a specjalista skontaktuje się z Tobą.
-                </p>
-                <form className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-                      Imię i nazwisko
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="form-input w-full"
-                      placeholder="Twoje imię i nazwisko"
-                    />
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Główna kolumna */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* O mnie */}
+              {specialist.bio && (
+                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                  <h2 className="text-2xl font-medium text-slate-800 mb-4">O mnie</h2>
+                  <div className="text-slate-600 leading-relaxed whitespace-pre-line">
+                    {specialist.bio}
                   </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="form-input w-full"
-                      placeholder="Twój adres email"
-                    />
+                </div>
+              )}
+
+              {/* Specjalizacje */}
+              {specializations.length > 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                  <h2 className="text-2xl font-medium text-slate-800 mb-4">Obszary pomocy</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {specializations.map((spec: string, index: number) => (
+                      <span
+                        key={index}
+                        className="bg-teal-50 text-teal-800 px-3 py-1 rounded-full text-sm font-medium border border-teal-200"
+                      >
+                        {spec.trim()}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
-                      Telefon (opcjonalnie)
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      className="form-input w-full"
-                      placeholder="Twój numer telefonu"
-                    />
+                </div>
+              )}
+
+              {/* Metody terapii */}
+              {therapyMethods.length > 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                  <h2 className="text-2xl font-medium text-slate-800 mb-4">Metody terapii</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {therapyMethods.map((method: string, index: number) => (
+                      <span
+                        key={index}
+                        className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-medium border border-slate-300"
+                      >
+                        {method.trim()}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-1">
-                      Wiadomość
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={4}
-                      className="form-input w-full"
-                      placeholder="Twoja wiadomość"
-                    ></textarea>
-                  </div>
-                  <div>
-                    <button type="submit" className="btn-accent w-full">
-                      Wyślij wiadomość
-                    </button>
-                  </div>
-                </form>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Wykształcenie i doświadczenie */}
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                <h3 className="text-xl font-medium text-slate-800 mb-4">Kwalifikacje</h3>
+                <div className="space-y-4">
+                  {specialist.experienceYears && (
+                    <div>
+                      <div className="text-sm text-slate-500 mb-1">Doświadczenie</div>
+                      <div className="text-slate-800 font-medium">
+                        {specialist.experienceYears} {specialist.experienceYears === 1 ? 'rok' : 
+                         specialist.experienceYears < 5 ? 'lata' : 'lat'}
+                      </div>
+                    </div>
+                  )}
+                  {specialist.education && (
+                    <div>
+                      <div className="text-sm text-slate-500 mb-1">Wykształcenie</div>
+                      <div className="text-slate-800 whitespace-pre-line">
+                        {specialist.education}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Lokalizacja */}
+              {specialist.address && (
+                <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                  <h3 className="text-xl font-medium text-slate-800 mb-4">Lokalizacja</h3>
+                  <div className="text-slate-600">
+                    {specialist.address}
+                  </div>
+                </div>
+              )}
+
+              {/* Dostępność */}
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                <h3 className="text-xl font-medium text-slate-800 mb-4">Dostępność</h3>
+                <div className="space-y-2">
+                  {specialist.offersOnline && (
+                    <div className="flex items-center gap-2 text-teal-700">
+                      <Monitor size={16} />
+                      <span>Wizyty online</span>
+                    </div>
+                  )}
+                  {specialist.offersInPerson && (
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <Clock size={16} />
+                      <span>Wizyty stacjonarne</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Formularz kontaktowy */}
+              <ContactForm 
+                specialistId={specialist.id} 
+                specialistName={specialist.name} 
+              />
             </div>
           </div>
         </div>

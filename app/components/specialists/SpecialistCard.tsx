@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Clock, Monitor } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { MapPin, Clock, Monitor, Award } from 'lucide-react';
 
 interface SpecialistCardProps {
   specialist: {
@@ -34,39 +33,26 @@ const SpecialistCard = ({ specialist }: SpecialistCardProps) => {
     isVerified
   } = specialist;
 
-  const slug = name
-    .toLowerCase()
-    .replace(/ą/g, 'a')
-    .replace(/ć/g, 'c')
-    .replace(/ę/g, 'e')
-    .replace(/ł/g, 'l')
-    .replace(/ń/g, 'n')
-    .replace(/ó/g, 'o')
-    .replace(/ś/g, 's')
-    .replace(/ź/g, 'z')
-    .replace(/ż/g, 'z')
-    .replace(/\./g, '') // usuwa kropki
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-') // usuwa wielokrotne myślniki
-    .trim();
-
   return (
     <div className="card hover:shadow-md transition-shadow">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Photo */}
         <div className="flex-shrink-0">
-          <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-lg border-2 border-slate-200 overflow-hidden">
+          <div className="w-24 h-24 rounded-lg border-2 border-slate-200 overflow-hidden bg-slate-100 flex-shrink-0">
             {photoUrl ? (
               <Image
                 src={photoUrl}
                 alt={name}
-                fill
-                sizes="(max-width: 768px) 100px, 150px"
-                className="object-cover"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
               />
             ) : (
-              <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                {name.charAt(0)}
+              <div className="w-full h-full flex items-center justify-center text-slate-400">
+                <Award size={32} />
               </div>
             )}
             {isVerified && (
@@ -128,7 +114,7 @@ const SpecialistCard = ({ specialist }: SpecialistCardProps) => {
             <div className="text-lg font-semibold text-slate-900">{pricePerSession} zł</div>
           )}
           <Link
-            href={`/specjalista/${slug}`}
+            href={`/specjalista/${id}`}
             className="btn-accent text-sm px-4 py-2 whitespace-nowrap"
           >
             Umów wizytę

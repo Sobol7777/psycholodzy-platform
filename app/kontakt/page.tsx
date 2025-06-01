@@ -1,8 +1,67 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { useToast } from '../components/ui/ToastContainer';
 
 export default function ContactPage() {
+  const { addToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Symulacja wysyłania (można później podłączyć prawdziwy endpoint)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Sukces
+      addToast({
+        type: 'success',
+        title: 'Wiadomość wysłana!',
+        message: 'Dziękujemy za kontakt. Odpowiemy w ciągu 24 godzin.',
+        duration: 6000
+      });
+
+      // Wyczyść formularz
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+
+    } catch {
+      // Błąd
+      addToast({
+        type: 'error',
+        title: 'Błąd wysyłania',
+        message: 'Wystąpił problem podczas wysyłania wiadomości. Spróbuj ponownie.',
+        duration: 8000
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -81,7 +140,7 @@ export default function ContactPage() {
                 Wyślij wiadomość
               </h2>
               
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-1">
@@ -91,6 +150,8 @@ export default function ContactPage() {
                       type="text"
                       id="firstName"
                       name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
                       required
                       className="form-input w-full"
                       placeholder="Twoje imię"
@@ -104,6 +165,8 @@ export default function ContactPage() {
                       type="text"
                       id="lastName"
                       name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
                       required
                       className="form-input w-full"
                       placeholder="Twoje nazwisko"
@@ -119,6 +182,8 @@ export default function ContactPage() {
                     type="email"
                     id="email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     required
                     className="form-input w-full"
                     placeholder="twoj@email.com"
@@ -132,6 +197,8 @@ export default function ContactPage() {
                   <select
                     id="subject"
                     name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
                     required
                     className="form-input w-full"
                   >
@@ -151,6 +218,8 @@ export default function ContactPage() {
                   <textarea
                     id="message"
                     name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     rows={6}
                     required
                     className="form-input w-full"
@@ -160,9 +229,10 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="btn-accent w-full"
+                  disabled={isSubmitting}
+                  className="btn-accent w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Wyślij wiadomość
+                  {isSubmitting ? 'Wysyłanie...' : 'Wyślij wiadomość'}
                 </button>
               </form>
             </div>
@@ -180,7 +250,7 @@ export default function ContactPage() {
                   Jak mogę dołączyć jako specjalista?
                 </h3>
                 <p className="text-slate-600 text-sm">
-                  Skontaktuj się z nami przez formularz, wybierając temat "Chcę dołączyć jako specjalista". 
+                  Skontaktuj się z nami przez formularz, wybierając temat &ldquo;Chcę dołączyć jako specjalista&rdquo;. 
                   Prześlemy Ci szczegółowe informacje o procesie rejestracji.
                 </p>
               </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const specialization = searchParams.get('specialization');
     const search = searchParams.get('search');
 
-    const where: any = {
+    const where: Prisma.SpecialistWhereInput = {
       isActive: true
     };
 
