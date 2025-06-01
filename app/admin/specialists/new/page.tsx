@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Monitor, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewSpecialist() {
@@ -325,29 +325,55 @@ export default function NewSpecialist() {
               </div>
             </div>
 
-            {/* Checkboxy */}
-            <div className="flex space-x-6">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="offersOnline"
-                  checked={formData.offersOnline}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded"
-                />
-                <span className="ml-2 text-sm text-slate-700">Oferuje wizyty online</span>
-              </label>
+            {/* Toggle switches zamiast checkboxów */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">Rodzaj oferowanych wizyt</h3>
+              
+              {/* Toggle dla wizyt online */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <Monitor size={20} className="text-teal-600" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-slate-700">Wizyty online</span>
+                    <p className="text-xs text-slate-500">Konsultacje przez internet</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="offersOnline"
+                    checked={formData.offersOnline}
+                    onChange={handleChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+                </label>
+              </div>
 
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="offersInPerson"
-                  checked={formData.offersInPerson}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded"
-                />
-                <span className="ml-2 text-sm text-slate-700">Oferuje wizyty stacjonarne</span>
-              </label>
+              {/* Toggle dla wizyt stacjonarnych */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <Clock size={20} className="text-teal-600" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-slate-700">Wizyty stacjonarne</span>
+                    <p className="text-xs text-slate-500">Spotkania w gabinecie</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="offersInPerson"
+                    checked={formData.offersInPerson}
+                    onChange={handleChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+                </label>
+              </div>
             </div>
 
             {/* Przyciski */}
